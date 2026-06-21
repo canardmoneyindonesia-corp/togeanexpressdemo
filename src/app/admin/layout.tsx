@@ -26,9 +26,14 @@ export default async function AdminLayout({
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b border-ocean-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-          <Link href="/admin" className="font-bold text-ocean-900">
-            Togean Express{" "}
-            <span className="font-normal text-ocean-500">· Admin</span>
+          <Link
+            href="/admin"
+            className="font-black uppercase tracking-tight text-ocean-900"
+          >
+            Togean <span className="text-ocean-500">Express</span>
+            <span className="ml-1 font-semibold normal-case tracking-normal text-ocean-400">
+              · Admin
+            </span>
           </Link>
           <nav className="flex items-center gap-1">
             {nav.map((n) => (

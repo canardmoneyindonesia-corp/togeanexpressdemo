@@ -162,9 +162,9 @@ export default function CheckoutForm({
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded-xl bg-ocean-100 px-4 py-3">
-        <span className="font-medium text-ocean-800">Total</span>
-        <span className="text-xl font-bold text-ocean-900">
+      <div className="flex items-center justify-between rounded-xl border border-accent-100 bg-accent-50 px-4 py-3">
+        <span className="font-semibold text-ocean-800">Total</span>
+        <span className="text-2xl font-black text-accent-500">
           {formatIDR(total)}
         </span>
       </div>
@@ -178,7 +178,7 @@ export default function CheckoutForm({
       <button
         type="submit"
         disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-ocean-600 px-6 py-3.5 font-semibold text-white shadow transition hover:bg-ocean-700 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-white shadow-md transition hover:bg-accent-600 disabled:opacity-60"
       >
         {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
         {submitting ? "Redirecting to payment…" : "Pay with Xendit"}

@@ -74,7 +74,7 @@ export default async function BookingPage({
       {!paid && booking.xendit_invoice_url && (
         <a
           href={booking.xendit_invoice_url}
-          className="mt-6 inline-block rounded-xl bg-ocean-600 px-6 py-3 font-semibold text-white hover:bg-ocean-700"
+          className="mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 font-bold text-white shadow-md transition hover:bg-accent-600"
         >
           {failed ? "Retry payment" : "Open payment page"}
         </a>

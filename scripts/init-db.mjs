@@ -68,9 +68,8 @@ async function main() {
   if (tripCount === 0) {
     console.log("Seeding trips…");
     const trips = [
-      { name: "Ampana → Wakai", route: "Ampana – Wakai", price: 350000, desc: "Mainland to the gateway of Togean." },
-      { name: "Wakai → Kadidiri", route: "Wakai – Kadidiri", price: 150000, desc: "Quick hop to Kadidiri Island." },
-      { name: "Gorontalo → Wakai", route: "Gorontalo – Wakai", price: 500000, desc: "Northern crossing to the Togean Islands." },
+      { name: "Luwuk Airport → Togean", route: "Luwuk Airport – Togean", price: 1500000, desc: "Transfer from Luwuk Airport to the Togean Islands." },
+      { name: "Togean → Luwuk Airport", route: "Togean – Luwuk Airport", price: 1500000, desc: "Transfer from the Togean Islands to Luwuk Airport." },
     ];
     for (const t of trips) {
       await sql`

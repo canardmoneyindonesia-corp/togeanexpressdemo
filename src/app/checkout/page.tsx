@@ -17,14 +17,19 @@ export default async function CheckoutPage({
   return (
     <main className="mx-auto max-w-xl px-5 py-10">
       <header className="mb-6 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ocean-600 text-white">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-ocean-900 text-white">
           <Ship className="h-6 w-6" />
         </div>
         <div>
-          <Link href="/" className="text-lg font-bold text-ocean-900">
-            Togean Express
+          <Link
+            href="/"
+            className="text-lg font-black uppercase tracking-tight text-ocean-900"
+          >
+            Togean <span className="text-ocean-500">Express</span>
           </Link>
-          <p className="text-sm text-ocean-600">Speedboat transfer booking</p>
+          <p className="text-sm font-semibold text-ocean-600">
+            Speedboat transfer booking
+          </p>
         </div>
       </header>
 

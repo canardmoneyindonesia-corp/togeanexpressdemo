@@ -49,7 +49,7 @@ export default function AdminLogin() {
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         <button
           disabled={loading}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-ocean-600 px-4 py-2.5 font-semibold text-white hover:bg-ocean-700 disabled:opacity-60"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-accent-500 px-4 py-2.5 font-bold text-white transition hover:bg-accent-600 disabled:opacity-60"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           Sign in

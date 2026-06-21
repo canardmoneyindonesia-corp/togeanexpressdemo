@@ -1,15 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ocean-50: #eef7fb;
-  --color-ocean-100: #d6ecf5;
-  --color-ocean-200: #aedbeb;
-  --color-ocean-400: #3aa6cf;
-  --color-ocean-500: #1f8fbf;
-  --color-ocean-600: #14729c;
-  --color-ocean-700: #105a7c;
-  --color-ocean-800: #0e4960;
-  --color-ocean-900: #0c3a4d;
+  /* Brand palette — anchored to the Togean Express flyer.
+     ocean = brand blue (#358BAF) → navy (#01245C). */
+  --color-ocean-50: #eef5fa;
+  --color-ocean-100: #d8e8f2;
+  --color-ocean-200: #b3d0e4;
+  --color-ocean-300: #87b6d4;
+  --color-ocean-400: #5b9cc4;
+  --color-ocean-500: #358baf; /* brand blue */
+  --color-ocean-600: #2a7095;
+  --color-ocean-700: #1d527a;
+  --color-ocean-800: #0f3a63;
+  --color-ocean-900: #01245c; /* brand navy */
+
+  /* accent = brand orange (#EE5135) — CTAs, prices, highlights. */
+  --color-accent-50: #fdeee9;
+  --color-accent-100: #fbd6cc;
+  --color-accent-200: #f7b3a1;
+  --color-accent-300: #f38f76;
+  --color-accent-400: #f16f50;
+  --color-accent-500: #ee5135; /* brand orange */
+  --color-accent-600: #d63f24;
+  --color-accent-700: #b1301a;
+
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -20,5 +36,16 @@ html,
 body {
   background: var(--color-ocean-50);
   color: var(--color-ocean-900);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings inherit the display family at a heavy weight, echoing the
+   condensed all-caps logo lockup on the flyer. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
