@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ocean-50: #eef7fb;
+  --color-ocean-100: #d6ecf5;
+  --color-ocean-200: #aedbeb;
+  --color-ocean-400: #3aa6cf;
+  --color-ocean-500: #1f8fbf;
+  --color-ocean-600: #14729c;
+  --color-ocean-700: #105a7c;
+  --color-ocean-800: #0e4960;
+  --color-ocean-900: #0c3a4d;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--color-ocean-50);
+  color: var(--color-ocean-900);
+  -webkit-font-smoothing: antialiased;
+}
