@@ -229,7 +229,9 @@ function TripEditor({ trip }: { trip: TripRow }) {
         </button>
       </div>
 
-      {showCalendar && <TripCalendar tripId={trip.id} />}
+      {showCalendar && (
+        <TripCalendar tripId={trip.id} defaultCapacity={edit.capacity} />
+      )}
     </div>
   );
 }

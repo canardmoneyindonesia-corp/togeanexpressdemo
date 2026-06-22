@@ -5,8 +5,6 @@ import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from "./use-is-mobile";
 import BottomSheet from "./bottom-sheet";
 
-// Togean Express only departs Mon / Wed / Sat.
-const OPERATING_DAYS = [1, 3, 6]; // JS getDay(): Sun=0 … Sat=6
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -98,7 +96,6 @@ export default function DatePicker({
   for (let i = 0; i < leadingBlanks; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(viewY, viewM, d));
 
-  const isOperating = (d: Date) => OPERATING_DAYS.includes(d.getDay());
   const isPast = (d: Date) => d < today;
   const sameDay = (a: Date, b: Date) => toISO(a) === toISO(b);
 
@@ -156,13 +153,11 @@ export default function DatePicker({
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
           const info = avail.get(toISO(d));
-          const operating = isOperating(d);
-          // When availability is loaded, closed/sold-out operating days are blocked.
-          const unavailable = !!info && (info.closed || info.soldOut);
-          const disabled = isPast(d) || !operating || unavailable;
+          // Only scheduled, open, non-sold-out future departures are bookable.
+          const unavailable = !info || info.closed || info.soldOut;
+          const disabled = isPast(d) || unavailable;
           const isSelected = selected && sameDay(d, selected);
-          const showSeats =
-            operating && !isPast(d) && info && !info.closed && !info.soldOut;
+          const showSeats = !!info && !isPast(d) && !info.closed && !info.soldOut;
           return (
             <button
               key={i}
@@ -196,7 +191,7 @@ export default function DatePicker({
                   {info!.seatsLeft} left
                 </span>
               )}
-              {operating && !isPast(d) && info?.soldOut && (
+              {!isPast(d) && info?.soldOut && (
                 <span className="mt-0.5 text-[9px] font-semibold text-amber-500">
                   Full
                 </span>
@@ -207,8 +202,7 @@ export default function DatePicker({
       </div>
 
       <p className="mt-3 border-t border-ocean-100 pt-2 text-center text-[11px] text-ocean-500">
-        Departures run{" "}
-        <span className="font-semibold text-ocean-700">Mon · Wed · Sat</span>
+        Highlighted dates have available departures · seats shown per date
       </p>
     </div>
   );

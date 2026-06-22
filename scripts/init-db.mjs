@@ -2,6 +2,7 @@
 // Run with:  npm run db:init   (loads .env.local automatically)
 import { neon } from "@neondatabase/serverless";
 import { randomUUID } from "node:crypto";
+import { migrateDepartures } from "./seed-departures.mjs";
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -137,6 +138,10 @@ For any questions, please contact us via WhatsApp before your departure.`;
       insert into agents (id, slug, name, email, commission_pct, active)
       values (${randomUUID()}, 'demo', 'Demo Travel Agency', 'demo@example.com', 15, true)`;
   }
+
+  // Seed explicit departures (Mon/Wed/Sat schedule) for the next 6 months.
+  console.log("Seeding departures…");
+  await migrateDepartures(sql, { quiet: true });
 
   console.log("Done. ✅");
 }

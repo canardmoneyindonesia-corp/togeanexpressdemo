@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const avail = await getDateAvailability(trip.id, date);
-    if (!avail.operating) {
+    if (!avail.scheduled) {
       return NextResponse.json(
         { error: "No departure runs on that date." },
         { status: 409 }
