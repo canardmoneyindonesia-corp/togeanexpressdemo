@@ -532,16 +532,31 @@ function BulkDeletePanel({
   const r = monthRange(defaultMonth.y, defaultMonth.m);
   const [from, setFrom] = useState(r.from);
   const [to, setTo] = useState(r.to);
+  const [weekdays, setWeekdays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  function toggle(d: number) {
+    setWeekdays((w) => (w.includes(d) ? w.filter((x) => x !== d) : [...w, d]));
+  }
+
+  const allDays = weekdays.length === 7;
+
   async function submit() {
-    if (!confirm(`Delete all departures between ${from} and ${to}? Departures with bookings are kept.`))
+    if (weekdays.length === 0) {
+      setMsg("Pick at least one weekday to delete.");
+      return;
+    }
+    const scope = allDays
+      ? "all departures"
+      : `departures on ${weekdays.map((d) => WEEKDAYS[d]).join(", ")}`;
+    if (!confirm(`Delete ${scope} between ${from} and ${to}? Departures with bookings are kept.`))
       return;
     setBusy(true);
     setMsg(null);
+    const wd = allDays ? "" : `&weekdays=${weekdays.join(",")}`;
     const res = await fetch(
-      `/api/admin/departures?tripId=${tripId}&from=${from}&to=${to}`,
+      `/api/admin/departures?tripId=${tripId}&from=${from}&to=${to}${wd}`,
       { method: "DELETE" }
     );
     const data = await res.json();
@@ -568,6 +583,30 @@ function BulkDeletePanel({
         <div>
           <label className="mb-1 block text-xs font-semibold text-ocean-700">To</label>
           <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inp} />
+        </div>
+      </div>
+      <div className="mt-3">
+        <label className="mb-1.5 block text-xs font-semibold text-ocean-700">
+          On weekdays{" "}
+          <span className="font-normal text-ocean-400">
+            ({allDays ? "all days" : "selected only"})
+          </span>
+        </label>
+        <div className="flex flex-wrap gap-1.5">
+          {WEEKDAYS.map((w, idx) => (
+            <button
+              key={w}
+              type="button"
+              onClick={() => toggle(idx)}
+              className={`h-9 w-10 rounded-lg border text-xs font-semibold transition ${
+                weekdays.includes(idx)
+                  ? "border-red-400 bg-red-500 text-white"
+                  : "border-ocean-200 text-ocean-500 hover:bg-ocean-50"
+              }`}
+            >
+              {w}
+            </button>
+          ))}
         </div>
       </div>
       {msg && <p className="mt-3 text-sm text-ocean-600">{msg}</p>}

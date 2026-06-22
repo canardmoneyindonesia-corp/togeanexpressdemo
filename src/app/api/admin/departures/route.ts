@@ -156,6 +156,21 @@ export async function DELETE(req: NextRequest) {
   if (from && to) {
     if (!DATE_RE.test(from) || !DATE_RE.test(to))
       return NextResponse.json({ error: "Invalid date range" }, { status: 400 });
+
+    // Optional weekday filter (e.g. weekdays=5 deletes only Fridays in the range).
+    const weekdaysParam = p.get("weekdays");
+    const weekdays = weekdaysParam
+      ? weekdaysParam
+          .split(",")
+          .map(Number)
+          .filter((n) => n >= 0 && n <= 6)
+      : null;
+    const matchesWeekday = (d: string) => {
+      if (!weekdays || weekdays.length === 0) return true;
+      const parsed = parseISO(d);
+      return parsed ? weekdays.includes(parsed.getDay()) : false;
+    };
+
     // Never delete departures that have bookings (protect paying customers).
     const booked = (await sql`
       select distinct travel_date::text as date from bookings
@@ -170,7 +185,7 @@ export async function DELETE(req: NextRequest) {
     }[];
     const toDelete = rows
       .map((r) => r.date.slice(0, 10))
-      .filter((d) => !protectedDates.has(d));
+      .filter((d) => matchesWeekday(d) && !protectedDates.has(d));
 
     for (const d of toDelete) {
       await sql`delete from departures where trip_id = ${tripId} and date = ${d}`;
