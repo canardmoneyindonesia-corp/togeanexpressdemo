@@ -55,11 +55,14 @@ export async function POST(req: NextRequest) {
     const date = String(body.date ?? "");
     if (!DATE_RE.test(date))
       return NextResponse.json({ error: "Invalid date" }, { status: 400 });
-    await sql`
+    // Never overwrite an existing departure — keep its seats/closed/bookings.
+    // Use PATCH (the day editor) to change a date that's already scheduled.
+    const res = await sql`
       insert into departures (trip_id, date, capacity, closed)
       values (${tripId}, ${date}, ${capacity || 12}, false)
-      on conflict (trip_id, date) do update set capacity = excluded.capacity`;
-    return NextResponse.json({ ok: true, added: 1 });
+      on conflict (trip_id, date) do nothing
+      returning date`;
+    return NextResponse.json({ ok: true, added: res.length, existed: res.length === 0 });
   }
 
   if (body.action === "bulkAdd") {
