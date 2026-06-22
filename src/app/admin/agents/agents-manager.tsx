@@ -110,7 +110,7 @@ export default function AgentsManager({ agents }: { agents: AgentRow[] }) {
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         <button
           disabled={creating}
-          className="mt-4 flex items-center gap-2 rounded-lg bg-ocean-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ocean-700 disabled:opacity-60"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-60"
         >
           {creating ? (
             <Loader2 className="h-4 w-4 animate-spin" />

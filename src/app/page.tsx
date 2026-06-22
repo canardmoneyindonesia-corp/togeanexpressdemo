@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  Ship,
   Ticket,
   ShieldCheck,
   Clock,
@@ -19,7 +18,7 @@ const amenities = [
 
 const compare = [
   { metric: "Duration", express: "5.5–6.5 hrs", public: "23–25 hrs" },
-  { metric: "Departures", express: "Guaranteed daily", public: "Often changed" },
+  { metric: "Departures", express: "Mon · Wed · Sat", public: "Often changed" },
   { metric: "Pricing", express: "1.5M IDR", public: "1.3M IDR + hotel" },
 ];
 
@@ -28,10 +27,7 @@ export default function Home() {
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12">
       {/* Hero */}
       <section className="text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-ocean-900 text-white shadow-lg">
-          <Ship className="h-8 w-8" />
-        </div>
-        <h1 className="text-5xl font-black uppercase leading-[0.95] tracking-tight text-ocean-900 sm:text-6xl">
+        <h1 className="mt-2 text-5xl font-black uppercase leading-[0.95] tracking-tight text-ocean-900 sm:text-6xl">
           Togean
           <br />
           <span className="text-ocean-500">Express</span>

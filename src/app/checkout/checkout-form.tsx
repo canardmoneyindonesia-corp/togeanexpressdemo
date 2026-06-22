@@ -3,6 +3,10 @@
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { formatIDR } from "@/lib/money";
+import DatePicker from "./date-picker";
+import CountrySelect from "./country-select";
+import RouteSelect from "./route-select";
+import { dialForIso } from "@/lib/country-codes";
 
 type TripOption = {
   id: string;
@@ -26,8 +30,10 @@ export default function CheckoutForm({
   const [quantity, setQuantity] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [countryIso, setCountryIso] = useState("ID");
   const [phone, setPhone] = useState("");
   const [travelDate, setTravelDate] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,6 +46,14 @@ export default function CheckoutForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!travelDate) {
+      setError("Please pick a departure date.");
+      return;
+    }
+    if (!agreed) {
+      setError("Please accept the Terms & Conditions to continue.");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -50,7 +64,7 @@ export default function CheckoutForm({
           quantity,
           customerName: name,
           customerEmail: email,
-          customerPhone: phone,
+          customerPhone: phone ? `${dialForIso(countryIso)} ${phone}`.trim() : "",
           travelDate,
           partner: partnerSlug,
         }),
@@ -65,28 +79,19 @@ export default function CheckoutForm({
     }
   }
 
-  const field =
-    "w-full rounded-lg border border-ocean-200 bg-white px-3 py-2.5 text-ocean-900 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-200";
-  const label = "mb-1 block text-sm font-medium text-ocean-800";
+  const fieldBase =
+    "rounded-lg border border-ocean-200 bg-white px-3 py-2 text-ocean-900 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/30";
+  const field = `w-full ${fieldBase}`;
+  const label = "mb-1 block text-xs font-semibold text-ocean-700";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-3.5">
       <div>
         <label className={label}>Route</label>
-        <select
-          className={field}
-          value={tripId}
-          onChange={(e) => setTripId(e.target.value)}
-        >
-          {trips.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} — {formatIDR(t.price_idr)}
-            </option>
-          ))}
-        </select>
+        <RouteSelect trips={trips} value={tripId} onChange={setTripId} />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Passengers</label>
           <input
@@ -102,13 +107,7 @@ export default function CheckoutForm({
         </div>
         <div>
           <label className={label}>Travel date</label>
-          <input
-            type="date"
-            required
-            className={field}
-            value={travelDate}
-            onChange={(e) => setTravelDate(e.target.value)}
-          />
+          <DatePicker value={travelDate} onChange={setTravelDate} />
         </div>
       </div>
 
@@ -123,7 +122,7 @@ export default function CheckoutForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className={label}>Email</label>
           <input
@@ -137,12 +136,16 @@ export default function CheckoutForm({
         </div>
         <div>
           <label className={label}>Phone</label>
-          <input
-            className={field}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+62…"
-          />
+          <div className="flex gap-2">
+            <CountrySelect value={countryIso} onChange={setCountryIso} />
+            <input
+              className={`${fieldBase} min-w-0 flex-1`}
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="812 3456 789"
+            />
+          </div>
         </div>
       </div>
 
@@ -162,12 +165,42 @@ export default function CheckoutForm({
         )}
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border border-accent-100 bg-accent-50 px-4 py-3">
-        <span className="font-semibold text-ocean-800">Total</span>
-        <span className="text-2xl font-black text-accent-500">
-          {formatIDR(total)}
-        </span>
+      <div className="rounded-xl border border-accent-100 bg-accent-50 px-4 py-3">
+        <div className="flex items-center justify-between text-sm text-ocean-600">
+          <span>
+            {formatIDR(trip?.price_idr ?? 0)} × {quantity}{" "}
+            {quantity > 1 ? "passengers" : "passenger"}
+          </span>
+        </div>
+        <div className="mt-1 flex items-center justify-between">
+          <span className="font-semibold text-ocean-800">Total</span>
+          <span className="text-2xl font-black text-accent-500">
+            {formatIDR(total)}
+          </span>
+        </div>
       </div>
+
+      {/* Terms & Conditions acceptance — required, responsive. */}
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-ocean-200 bg-white px-4 py-3 text-sm text-ocean-700 transition hover:border-ocean-300 has-[:checked]:border-ocean-500 has-[:checked]:bg-ocean-50">
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 h-5 w-5 shrink-0 accent-accent-500"
+        />
+        <span className="leading-snug">
+          I have read and agree to the{" "}
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-ocean-700 underline underline-offset-2 hover:text-accent-500"
+          >
+            Terms &amp; Conditions
+          </a>
+          .
+        </span>
+      </label>
 
       {error && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -177,8 +210,8 @@ export default function CheckoutForm({
 
       <button
         type="submit"
-        disabled={submitting}
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3.5 font-bold text-white shadow-md transition hover:bg-accent-600 disabled:opacity-60"
+        disabled={submitting || !agreed}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-6 py-3 font-bold text-white shadow-md transition hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting && <Loader2 className="h-5 w-5 animate-spin" />}
         {submitting ? "Redirecting to payment…" : "Pay with Xendit"}

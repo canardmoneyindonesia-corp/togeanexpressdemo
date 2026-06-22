@@ -63,6 +63,37 @@ async function main() {
   await sql`create index if not exists idx_bookings_agent on bookings (agent_slug)`;
   await sql`create index if not exists idx_bookings_status on bookings (status)`;
 
+  await sql`
+    create table if not exists settings (
+      key text primary key,
+      value text not null,
+      updated_at timestamptz not null default now()
+    )`;
+
+  // Seed default terms & conditions (editable later in the admin panel).
+  const defaultTerms = `Welcome to Togean Express. By booking a speedboat transfer with us, you agree to the following terms.
+
+1. Booking & Payment
+All bookings must be paid in full at the time of reservation. Prices are quoted in Indonesian Rupiah (IDR) and cover the stated transfer only.
+
+2. Schedule & Departures
+Departure times are confirmed via WhatsApp. We strive to depart on schedule but reserve the right to adjust departures due to weather or sea conditions for your safety.
+
+3. Cancellations & Refunds
+Cancellations made at least 48 hours before departure are eligible for a full refund. Cancellations within 48 hours are non-refundable. Trips cancelled by Togean Express due to weather will be fully refunded or rescheduled.
+
+4. Baggage
+Each passenger may bring one piece of luggage and one item of hand luggage. Excess baggage may incur additional charges.
+
+5. Safety
+Life jackets are provided and must be worn when instructed by the crew. Passengers must follow all crew instructions at all times.
+
+6. Liability
+Togean Express is not liable for delays, missed connections, or losses arising from events beyond our reasonable control.
+
+For any questions, please contact us via WhatsApp before your departure.`;
+  await sql`insert into settings (key, value) values ('terms', ${defaultTerms}) on conflict (key) do nothing`;
+
   // Seed trips if empty.
   const [{ count: tripCount }] = await sql`select count(*)::int as count from trips`;
   if (tripCount === 0) {

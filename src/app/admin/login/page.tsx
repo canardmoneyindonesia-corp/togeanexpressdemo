@@ -44,7 +44,7 @@ export default function AdminLogin() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-ocean-200 px-3 py-2.5 outline-none focus:border-ocean-500 focus:ring-2 focus:ring-ocean-200"
+          className="w-full rounded-lg border border-ocean-200 px-3 py-2.5 outline-none transition focus:border-ocean-500 focus:ring-2 focus:ring-ocean-500/30"
         />
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
         <button

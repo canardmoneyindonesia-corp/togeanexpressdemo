@@ -34,7 +34,7 @@
 
 html,
 body {
-  background: var(--color-ocean-50);
+  background: #fefefe;
   color: var(--color-ocean-900);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -48,4 +48,31 @@ h2,
 h3 {
   font-family: var(--font-display);
   letter-spacing: -0.01em;
+}
+
+/* Mobile bottom-sheet transitions. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-sheet-up {
+  animation: sheet-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
 }

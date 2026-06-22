@@ -83,7 +83,7 @@ export default function TripsManager({ trips }: { trips: TripRow[] }) {
         </div>
         <button
           disabled={creating}
-          className="mt-4 flex items-center gap-2 rounded-lg bg-ocean-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ocean-700 disabled:opacity-60"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white hover:bg-accent-600 disabled:opacity-60"
         >
           {creating ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -169,7 +169,7 @@ function TripEditor({ trip }: { trip: TripRow }) {
           <button
             onClick={save}
             disabled={!dirty || saving}
-            className="flex items-center gap-1 rounded-lg bg-ocean-600 px-3 py-2 text-xs font-semibold text-white hover:bg-ocean-700 disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg bg-accent-500 px-3 py-2 text-xs font-semibold text-white hover:bg-accent-600 disabled:opacity-40"
           >
             {saving ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

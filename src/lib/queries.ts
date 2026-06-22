@@ -1,5 +1,21 @@
 import { sql, type Agent, type Trip, type Booking } from "./db";
 
+// ---- Settings (key/value content, e.g. terms & conditions) ----
+
+export async function getSetting(key: string): Promise<string | null> {
+  const rows = (await sql`
+    select value from settings where key = ${key}
+  `) as { value: string }[];
+  return rows[0]?.value ?? null;
+}
+
+export async function setSetting(key: string, value: string): Promise<void> {
+  await sql`
+    insert into settings (key, value, updated_at)
+    values (${key}, ${value}, now())
+    on conflict (key) do update set value = excluded.value, updated_at = now()`;
+}
+
 // ---- Trips ----
 
 export async function getActiveTrips(): Promise<Trip[]> {
