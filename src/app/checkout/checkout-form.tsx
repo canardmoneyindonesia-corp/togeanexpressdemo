@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Minus, Plus } from "lucide-react";
 import { formatIDR } from "@/lib/money";
 import DatePicker from "./date-picker";
 import CountrySelect from "./country-select";
@@ -27,7 +27,12 @@ export default function CheckoutForm({
   partnerValid: boolean;
 }) {
   const [tripId, setTripId] = useState(trips[0]?.id ?? "");
-  const [quantity, setQuantity] = useState(1);
+  // Editable string buffer so the field can be cleared/retyped on mobile;
+  // `quantity` is the clamped numeric value used for pricing & submission.
+  const [qtyText, setQtyText] = useState("1");
+  const quantity = Math.min(50, Math.max(1, parseInt(qtyText, 10) || 1));
+  const setQty = (n: number) =>
+    setQtyText(String(Math.min(50, Math.max(1, n))));
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [countryIso, setCountryIso] = useState("ID");
@@ -94,16 +99,38 @@ export default function CheckoutForm({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Passengers</label>
-          <input
-            type="number"
-            min={1}
-            max={50}
-            className={field}
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, Number(e.target.value) || 1))
-            }
-          />
+          <div className="flex items-stretch overflow-hidden rounded-lg border border-ocean-200 bg-white transition focus-within:border-ocean-500 focus-within:ring-2 focus-within:ring-ocean-500/30">
+            <button
+              type="button"
+              aria-label="Remove passenger"
+              onClick={() => setQty(quantity - 1)}
+              disabled={quantity <= 1}
+              className="flex w-11 shrink-0 items-center justify-center text-ocean-600 transition hover:bg-ocean-50 active:bg-ocean-100 disabled:opacity-30"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              aria-label="Number of passengers"
+              className="w-full min-w-0 flex-1 border-x border-ocean-200 py-2 text-center text-ocean-900 outline-none"
+              value={qtyText}
+              onChange={(e) =>
+                setQtyText(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))
+              }
+              onBlur={() => setQtyText(String(quantity))}
+            />
+            <button
+              type="button"
+              aria-label="Add passenger"
+              onClick={() => setQty(quantity + 1)}
+              disabled={quantity >= 50}
+              className="flex w-11 shrink-0 items-center justify-center text-ocean-600 transition hover:bg-ocean-50 active:bg-ocean-100 disabled:opacity-30"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <div>
           <label className={label}>Travel date</label>

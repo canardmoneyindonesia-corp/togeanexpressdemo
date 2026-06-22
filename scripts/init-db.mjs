@@ -47,6 +47,8 @@ async function main() {
       customer_name text,
       customer_email text,
       customer_phone text,
+      pickup text,
+      dropoff text,
       travel_date date,
       quantity int not null default 1,
       unit_price_idr bigint not null,
@@ -59,6 +61,10 @@ async function main() {
       created_at timestamptz not null default now(),
       paid_at timestamptz
     )`;
+
+  // Migrations for databases created before these columns existed.
+  await sql`alter table bookings add column if not exists pickup text`;
+  await sql`alter table bookings add column if not exists dropoff text`;
 
   await sql`create index if not exists idx_bookings_agent on bookings (agent_slug)`;
   await sql`create index if not exists idx_bookings_status on bookings (status)`;

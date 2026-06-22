@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
       customerName,
       customerEmail,
       customerPhone,
+      pickup,
+      dropoff,
       travelDate,
       partner,
     } = body ?? {};
@@ -42,12 +44,13 @@ export async function POST(req: NextRequest) {
     await sql`
       insert into bookings (
         id, trip_id, trip_name, agent_slug, agent_id,
-        customer_name, customer_email, customer_phone, travel_date,
+        customer_name, customer_email, customer_phone, pickup, dropoff, travel_date,
         quantity, unit_price_idr, amount_idr, commission_pct, commission_idr,
         status
       ) values (
         ${bookingId}, ${trip.id}, ${trip.name}, ${agent?.slug ?? null}, ${agent?.id ?? null},
         ${customerName ?? null}, ${customerEmail ?? null}, ${customerPhone ?? null},
+        ${pickup || null}, ${dropoff || null},
         ${travelDate || null},
         ${qty}, ${unitPrice}, ${amount}, ${commissionPct}, ${commission},
         'pending'
