@@ -33,8 +33,21 @@ async function main() {
       route text,
       description text,
       price_idr bigint not null,
+      capacity int not null default 12,
       active boolean not null default true,
       created_at timestamptz not null default now()
+    )`;
+
+  // Per-date capacity overrides / closures (default capacity lives on trips).
+  await sql`alter table trips add column if not exists capacity int not null default 12`;
+
+  await sql`
+    create table if not exists departures (
+      trip_id text not null references trips(id) on delete cascade,
+      date date not null,
+      capacity int,
+      closed boolean not null default false,
+      primary key (trip_id, date)
     )`;
 
   await sql`
@@ -68,6 +81,7 @@ async function main() {
 
   await sql`create index if not exists idx_bookings_agent on bookings (agent_slug)`;
   await sql`create index if not exists idx_bookings_status on bookings (status)`;
+  await sql`create index if not exists idx_bookings_trip_date on bookings (trip_id, travel_date)`;
 
   await sql`
     create table if not exists settings (

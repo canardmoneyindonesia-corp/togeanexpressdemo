@@ -16,6 +16,7 @@ export default async function TripsPage() {
         route: t.route,
         description: t.description,
         price_idr: num(t.price_idr),
+        capacity: num(t.capacity),
         active: t.active,
       }))}
     />

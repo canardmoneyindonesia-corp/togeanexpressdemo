@@ -26,12 +26,16 @@ function parseISO(s: string): Date | null {
   return new Date(y, m - 1, d);
 }
 
+type DayInfo = { seatsLeft: number; closed: boolean; soldOut: boolean };
+
 export default function DatePicker({
   value,
   onChange,
+  tripId,
 }: {
   value: string;
   onChange: (iso: string) => void;
+  tripId?: string;
 }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -42,8 +46,32 @@ export default function DatePicker({
   const [open, setOpen] = useState(false);
   const [viewY, setViewY] = useState(initial.getFullYear());
   const [viewM, setViewM] = useState(initial.getMonth());
+  const [avail, setAvail] = useState<Map<string, DayInfo>>(new Map());
   const ref = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+
+  // Load seat availability for the visible month / selected route.
+  useEffect(() => {
+    if (!tripId) {
+      setAvail(new Map());
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/availability?tripId=${tripId}&year=${viewY}&month=${viewM + 1}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        const m = new Map<string, DayInfo>();
+        (data.days ?? []).forEach((d: { date: string } & DayInfo) =>
+          m.set(d.date, { seatsLeft: d.seatsLeft, closed: d.closed, soldOut: d.soldOut })
+        );
+        setAvail(m);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [tripId, viewY, viewM]);
 
   // Desktop popover dismissal. Mobile uses BottomSheet.
   useEffect(() => {
@@ -127,8 +155,14 @@ export default function DatePicker({
       <div className="grid grid-cols-7 gap-1">
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
-          const disabled = isPast(d) || !isOperating(d);
+          const info = avail.get(toISO(d));
+          const operating = isOperating(d);
+          // When availability is loaded, closed/sold-out operating days are blocked.
+          const unavailable = !!info && (info.closed || info.soldOut);
+          const disabled = isPast(d) || !operating || unavailable;
           const isSelected = selected && sameDay(d, selected);
+          const showSeats =
+            operating && !isPast(d) && info && !info.closed && !info.soldOut;
           return (
             <button
               key={i}
@@ -139,8 +173,8 @@ export default function DatePicker({
                 setOpen(false);
               }}
               className={[
-                "flex items-center justify-center rounded-md text-sm transition",
-                "h-11 sm:h-9",
+                "flex flex-col items-center justify-center rounded-md text-sm leading-none transition",
+                "h-11 sm:h-10",
                 isSelected
                   ? "bg-accent-500 font-bold text-white"
                   : disabled
@@ -148,7 +182,25 @@ export default function DatePicker({
                     : "font-medium text-ocean-800 hover:bg-ocean-100",
               ].join(" ")}
             >
-              {d.getDate()}
+              <span>{d.getDate()}</span>
+              {showSeats && (
+                <span
+                  className={`mt-0.5 text-[9px] font-semibold ${
+                    isSelected
+                      ? "text-white/90"
+                      : info!.seatsLeft <= 3
+                        ? "text-amber-600"
+                        : "text-ocean-400"
+                  }`}
+                >
+                  {info!.seatsLeft} left
+                </span>
+              )}
+              {operating && !isPast(d) && info?.soldOut && (
+                <span className="mt-0.5 text-[9px] font-semibold text-amber-500">
+                  Full
+                </span>
+              )}
             </button>
           );
         })}

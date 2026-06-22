@@ -41,6 +41,7 @@ export type Trip = {
   route: string | null;
   description: string | null;
   price_idr: number;
+  capacity: number;
   active: boolean;
   created_at: string;
 };

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, Loader2, CalendarDays } from "lucide-react";
 import { formatIDR } from "@/lib/money";
+import TripCalendar from "./trip-calendar";
 
 type TripRow = {
   id: string;
@@ -11,6 +12,7 @@ type TripRow = {
   route: string | null;
   description: string | null;
   price_idr: number;
+  capacity: number;
   active: boolean;
 };
 
@@ -25,6 +27,7 @@ export default function TripsManager({ trips }: { trips: TripRow[] }) {
     route: "",
     description: "",
     price_idr: 0,
+    capacity: 12,
   });
 
   async function createTrip(e: React.FormEvent) {
@@ -36,7 +39,7 @@ export default function TripsManager({ trips }: { trips: TripRow[] }) {
       body: JSON.stringify(form),
     });
     setCreating(false);
-    setForm({ name: "", route: "", description: "", price_idr: 0 });
+    setForm({ name: "", route: "", description: "", price_idr: 0, capacity: 12 });
     router.refresh();
   }
 
@@ -49,7 +52,7 @@ export default function TripsManager({ trips }: { trips: TripRow[] }) {
         className="rounded-2xl border border-ocean-200 bg-white p-5"
       >
         <h2 className="mb-4 font-semibold text-ocean-900">Add a trip</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <input
             className={field}
             placeholder="Name *"
@@ -80,6 +83,16 @@ export default function TripsManager({ trips }: { trips: TripRow[] }) {
             }
             required
           />
+          <input
+            type="number"
+            min={1}
+            className={field}
+            placeholder="Seats / departure"
+            value={form.capacity || ""}
+            onChange={(e) =>
+              setForm({ ...form, capacity: Number(e.target.value) })
+            }
+          />
         </div>
         <button
           disabled={creating}
@@ -108,11 +121,13 @@ function TripEditor({ trip }: { trip: TripRow }) {
   const router = useRouter();
   const [edit, setEdit] = useState(trip);
   const [saving, setSaving] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const dirty =
     edit.name !== trip.name ||
     edit.route !== trip.route ||
     edit.description !== trip.description ||
     edit.price_idr !== trip.price_idr ||
+    edit.capacity !== trip.capacity ||
     edit.active !== trip.active;
 
   async function save() {
@@ -134,7 +149,7 @@ function TripEditor({ trip }: { trip: TripRow }) {
 
   return (
     <div className="rounded-2xl border border-ocean-200 bg-white p-4">
-      <div className="grid items-center gap-3 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_auto]">
+      <div className="grid items-center gap-3 sm:grid-cols-2 lg:grid-cols-[1.4fr_1.4fr_1fr_auto_auto]">
         <input
           className={field}
           value={edit.name}
@@ -156,6 +171,19 @@ function TripEditor({ trip }: { trip: TripRow }) {
               setEdit({ ...edit, price_idr: Number(e.target.value) })
             }
           />
+        </div>
+        <div className="flex items-center gap-1.5">
+          <input
+            type="number"
+            min={1}
+            title="Default seats per departure"
+            className={`${field} w-20`}
+            value={edit.capacity}
+            onChange={(e) =>
+              setEdit({ ...edit, capacity: Number(e.target.value) })
+            }
+          />
+          <span className="text-xs text-ocean-400">seats</span>
         </div>
         <div className="flex items-center justify-end gap-2">
           <label className="flex items-center gap-1.5 text-sm text-ocean-600">
@@ -187,9 +215,21 @@ function TripEditor({ trip }: { trip: TripRow }) {
           </button>
         </div>
       </div>
-      <p className="mt-2 text-xs text-ocean-400">
-        Current price: {formatIDR(trip.price_idr)}
-      </p>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-ocean-400">
+          {formatIDR(trip.price_idr)} · {trip.capacity} seats / departure
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowCalendar((s) => !s)}
+          className="flex items-center gap-1.5 rounded-lg border border-ocean-200 px-3 py-1.5 text-xs font-semibold text-ocean-700 hover:bg-ocean-50"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          {showCalendar ? "Hide calendar" : "Manage availability"}
+        </button>
+      </div>
+
+      {showCalendar && <TripCalendar tripId={trip.id} />}
     </div>
   );
 }

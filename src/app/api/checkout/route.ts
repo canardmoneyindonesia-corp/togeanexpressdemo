@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { sql } from "@/lib/db";
 import { getTrip, getAgentBySlug } from "@/lib/queries";
+import { getDateAvailability } from "@/lib/availability";
 import { createInvoice } from "@/lib/xendit";
 import { baseUrl } from "@/lib/url";
 import { num } from "@/lib/money";
@@ -31,6 +32,39 @@ export async function POST(req: NextRequest) {
     const qty = Math.max(1, Math.min(50, Number(quantity) || 1));
     const unitPrice = num(trip.price_idr);
     const amount = unitPrice * qty;
+
+    // Capacity / availability enforcement.
+    const date = String(travelDate ?? "");
+    if (!date) {
+      return NextResponse.json(
+        { error: "Please choose a departure date." },
+        { status: 400 }
+      );
+    }
+    const avail = await getDateAvailability(trip.id, date);
+    if (!avail.operating) {
+      return NextResponse.json(
+        { error: "No departure runs on that date." },
+        { status: 409 }
+      );
+    }
+    if (avail.closed) {
+      return NextResponse.json(
+        { error: "That departure is closed. Please pick another date." },
+        { status: 409 }
+      );
+    }
+    if (qty > avail.seatsLeft) {
+      return NextResponse.json(
+        {
+          error:
+            avail.seatsLeft <= 0
+              ? "That departure is fully booked. Please pick another date."
+              : `Only ${avail.seatsLeft} seat${avail.seatsLeft === 1 ? "" : "s"} left on that departure.`,
+        },
+        { status: 409 }
+      );
+    }
 
     // Resolve partner/agent + commission.
     const agent = partner ? await getAgentBySlug(String(partner)) : null;
