@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { isAdmin } from "@/lib/auth";
-import { LayoutDashboard, Users, Receipt, Ship, FileText } from "lucide-react";
+import { LayoutDashboard, Users, Receipt, Ship, FileText, MapPin } from "lucide-react";
 import LogoutButton from "./logout-button";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +20,7 @@ export default async function AdminLayout({
     { href: "/admin/agents", label: "Agents", icon: Users },
     { href: "/admin/bookings", label: "Bookings", icon: Receipt },
     { href: "/admin/trips", label: "Trips", icon: Ship },
+    { href: "/admin/locations", label: "Locations", icon: MapPin },
     { href: "/admin/terms", label: "Terms", icon: FileText },
   ];
 

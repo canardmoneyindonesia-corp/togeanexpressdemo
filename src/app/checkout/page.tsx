@@ -1,5 +1,6 @@
 import { Ship, ShieldCheck, Clock, Users } from "lucide-react";
-import { getActiveTrips, getAgentBySlug } from "@/lib/queries";
+import { getActiveTrips, getAgentBySlug, getActiveLocations } from "@/lib/queries";
+import { formatLocationLabel } from "@/lib/locations";
 import CheckoutForm from "./checkout-form";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,13 @@ export default async function CheckoutPage({
   const { partner } = await searchParams;
   const trips = await getActiveTrips();
   const agent = partner ? await getAgentBySlug(partner) : null;
+  const locations = await getActiveLocations();
+  const pickupOptions = locations
+    .filter((l) => l.kind === "pickup")
+    .map(formatLocationLabel);
+  const dropoffOptions = locations
+    .filter((l) => l.kind === "dropoff")
+    .map(formatLocationLabel);
 
   return (
     <main className="flex min-h-screen flex-col bg-white">
@@ -72,6 +80,8 @@ export default async function CheckoutPage({
               partnerSlug={agent?.slug ?? partner ?? ""}
               partnerName={agent?.name ?? ""}
               partnerValid={!!agent}
+              pickupOptions={pickupOptions}
+              dropoffOptions={dropoffOptions}
             />
           )}
         </div>

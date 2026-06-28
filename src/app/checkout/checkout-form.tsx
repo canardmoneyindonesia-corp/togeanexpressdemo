@@ -6,6 +6,7 @@ import { formatIDR } from "@/lib/money";
 import DatePicker from "./date-picker";
 import CountrySelect from "./country-select";
 import RouteSelect from "./route-select";
+import LocationSelect from "./location-select";
 import { dialForIso } from "@/lib/country-codes";
 
 type TripOption = {
@@ -22,11 +23,15 @@ export default function CheckoutForm({
   partnerSlug,
   partnerName,
   partnerValid,
+  pickupOptions,
+  dropoffOptions,
 }: {
   trips: TripOption[];
   partnerSlug: string;
   partnerName: string;
   partnerValid: boolean;
+  pickupOptions: string[];
+  dropoffOptions: string[];
 }) {
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -80,7 +85,7 @@ export default function CheckoutForm({
     e.preventDefault();
     setError(null);
     if (!pickup.trim() || !dropoff.trim()) {
-      setError("Please enter both pick-up and drop-off locations.");
+      setError("Please choose both pick-up and drop-off locations.");
       return;
     }
     if (!agreed) {
@@ -247,22 +252,42 @@ export default function CheckoutForm({
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className={label}>Pick-up location</label>
-              <input
-                className={field}
-                value={pickup}
-                onChange={(e) => setPickup(e.target.value)}
-                placeholder="e.g. Kadidiri Paradise jetty"
-              />
+              <label className={label}>Pick-up location &amp; time</label>
+              {pickupOptions.length > 0 ? (
+                <LocationSelect
+                  options={pickupOptions}
+                  value={pickup}
+                  onChange={setPickup}
+                  placeholder="Select a pick-up point"
+                  title="Choose pick-up point"
+                />
+              ) : (
+                <input
+                  className={field}
+                  value={pickup}
+                  onChange={(e) => setPickup(e.target.value)}
+                  placeholder="e.g. Kadidiri Paradise jetty"
+                />
+              )}
             </div>
             <div>
-              <label className={label}>Drop-off location</label>
-              <input
-                className={field}
-                value={dropoff}
-                onChange={(e) => setDropoff(e.target.value)}
-                placeholder="e.g. Luwuk Airport"
-              />
+              <label className={label}>Drop-off location &amp; time</label>
+              {dropoffOptions.length > 0 ? (
+                <LocationSelect
+                  options={dropoffOptions}
+                  value={dropoff}
+                  onChange={setDropoff}
+                  placeholder="Select a drop-off point"
+                  title="Choose drop-off point"
+                />
+              ) : (
+                <input
+                  className={field}
+                  value={dropoff}
+                  onChange={(e) => setDropoff(e.target.value)}
+                  placeholder="e.g. Luwuk Airport"
+                />
+              )}
             </div>
           </div>
 

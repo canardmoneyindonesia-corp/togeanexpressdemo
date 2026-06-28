@@ -84,6 +84,22 @@ async function main() {
   await sql`create index if not exists idx_bookings_status on bookings (status)`;
   await sql`create index if not exists idx_bookings_trip_date on bookings (trip_id, travel_date)`;
 
+  // Admin-managed pick-up / drop-off points with their scheduled times.
+  // The checkout form turns these into dropdowns so guests can only pick
+  // recognised locations (no free-text typos).
+  await sql`
+    create table if not exists locations (
+      id text primary key,
+      kind text not null,
+      area text not null,
+      place text,
+      time_label text,
+      sort_order int not null default 0,
+      active boolean not null default true,
+      created_at timestamptz not null default now()
+    )`;
+  await sql`create index if not exists idx_locations_kind on locations (kind, sort_order)`;
+
   await sql`
     create table if not exists settings (
       key text primary key,
@@ -137,6 +153,27 @@ For any questions, please contact us via WhatsApp before your departure.`;
     await sql`
       insert into agents (id, slug, name, email, commission_pct, active)
       values (${randomUUID()}, 'demo', 'Demo Travel Agency', 'demo@example.com', 15, true)`;
+  }
+
+  // Seed the standard pick-up / drop-off schedule if empty.
+  const [{ count: locCount }] = await sql`select count(*)::int as count from locations`;
+  if (locCount === 0) {
+    console.log("Seeding pick-up / drop-off locations…");
+    const locations = [
+      { kind: "pickup", area: "Kadidiri area", place: "Kadidiri Paradise Resort jetty", time: "6:15am", order: 1 },
+      { kind: "pickup", area: "Ketupat area", place: "Bolilanga Resort jetty", time: "6:45am", order: 2 },
+      { kind: "pickup", area: "Malenge area", place: "The Cliff Resort jetty", time: "7:30am", order: 3 },
+      { kind: "pickup", area: "Luwuk Airport", place: "outside baggage claim", time: "12:00 noon", order: 4 },
+      { kind: "dropoff", area: "Kadidiri area", place: "Kadidiri Paradise jetty", time: "6:45pm", order: 1 },
+      { kind: "dropoff", area: "Ketupat area", place: "Bolilanga Resort jetty", time: "6:15pm", order: 2 },
+      { kind: "dropoff", area: "Malenge area", place: "The Cliff Resort jetty", time: "5:45pm", order: 3 },
+      { kind: "dropoff", area: "Luwuk Airport", place: "departure area", time: "1:30pm", order: 4 },
+    ];
+    for (const l of locations) {
+      await sql`
+        insert into locations (id, kind, area, place, time_label, sort_order, active)
+        values (${randomUUID()}, ${l.kind}, ${l.area}, ${l.place}, ${l.time}, ${l.order}, true)`;
+    }
   }
 
   // Seed explicit departures (Mon/Wed/Sat schedule) for the next 6 months.

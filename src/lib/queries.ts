@@ -1,4 +1,4 @@
-import { sql, type Agent, type Trip, type Booking } from "./db";
+import { sql, type Agent, type Trip, type Booking, type Location } from "./db";
 
 // ---- Settings (key/value content, e.g. terms & conditions) ----
 
@@ -31,6 +31,20 @@ export async function getAllTrips(): Promise<Trip[]> {
 export async function getTrip(id: string): Promise<Trip | null> {
   const rows = (await sql`select * from trips where id = ${id}`) as Trip[];
   return rows[0] ?? null;
+}
+
+// ---- Pick-up / drop-off locations ----
+
+export async function getActiveLocations(): Promise<Location[]> {
+  return (await sql`
+    select * from locations where active = true order by kind, sort_order, area
+  `) as Location[];
+}
+
+export async function getAllLocations(): Promise<Location[]> {
+  return (await sql`
+    select * from locations order by kind, sort_order, area
+  `) as Location[];
 }
 
 // ---- Agents ----

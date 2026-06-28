@@ -46,6 +46,19 @@ export type Trip = {
   created_at: string;
 };
 
+export type LocationKind = "pickup" | "dropoff";
+
+export type Location = {
+  id: string;
+  kind: LocationKind;
+  area: string;
+  place: string | null;
+  time_label: string | null;
+  sort_order: number;
+  active: boolean;
+  created_at: string;
+};
+
 export type BookingStatus = "pending" | "paid" | "expired" | "failed";
 
 export type Booking = {
@@ -57,6 +70,8 @@ export type Booking = {
   customer_name: string | null;
   customer_email: string | null;
   customer_phone: string | null;
+  pickup: string | null;
+  dropoff: string | null;
   travel_date: string | null;
   quantity: number;
   unit_price_idr: number;
