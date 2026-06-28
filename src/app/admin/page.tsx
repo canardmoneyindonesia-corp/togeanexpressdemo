@@ -2,16 +2,7 @@ import { requireAdmin } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { getCommissionSummary } from "@/lib/queries";
 import { formatIDR, num } from "@/lib/money";
-import { PARTNERS } from "@/lib/partners";
-import {
-  Receipt,
-  Wallet,
-  Clock,
-  HandCoins,
-  Eye,
-  Image as ImageIcon,
-  FileText,
-} from "lucide-react";
+import { Receipt, Wallet, Clock, HandCoins } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -92,58 +83,6 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-3 text-lg font-semibold text-ocean-900">
-          Partner flyers
-        </h2>
-        <div className="overflow-hidden rounded-2xl border border-ocean-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-ocean-50 text-left text-ocean-600">
-              <tr>
-                <th className="px-4 py-3 font-medium">Property</th>
-                <th className="px-4 py-3 font-medium">Pickup</th>
-                <th className="px-4 py-3 font-medium">Flyer</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PARTNERS.map((p) => (
-                <tr key={p.slug} className="border-t border-ocean-100">
-                  <td className="px-4 py-3 font-medium text-ocean-900">
-                    {p.name}
-                  </td>
-                  <td className="px-4 py-3 text-ocean-600">
-                    {p.pickup} · {p.departTime}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <a
-                        href={`/flyer/${p.slug}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-ocean-200 px-3 py-1.5 font-medium text-ocean-700 hover:bg-ocean-50"
-                      >
-                        <Eye className="h-4 w-4" /> Preview
-                      </a>
-                      <a
-                        href={`/api/flyer/${p.slug}?format=png`}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-ocean-600 px-3 py-1.5 font-medium text-white hover:bg-ocean-700"
-                      >
-                        <ImageIcon className="h-4 w-4" /> PNG
-                      </a>
-                      <a
-                        href={`/api/flyer/${p.slug}?format=pdf`}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-ocean-600 px-3 py-1.5 font-medium text-white hover:bg-ocean-700"
-                      >
-                        <FileText className="h-4 w-4" /> PDF
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
     </div>
   );
 }

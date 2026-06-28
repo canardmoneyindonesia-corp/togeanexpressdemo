@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Plus, Copy, Check, Download, Trash2, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Copy,
+  Check,
+  Download,
+  Trash2,
+  Loader2,
+  FileImage,
+} from "lucide-react";
 
 type AgentRow = {
   id: string;
@@ -202,6 +210,13 @@ function AgentCard({
           >
             <Download className="h-3.5 w-3.5" />
             QR
+          </a>
+          <a
+            href={`/api/flyer/${agent.slug}?format=png`}
+            className="flex items-center gap-1 rounded-lg border border-ocean-200 px-2.5 py-1.5 text-xs font-medium text-ocean-700 hover:bg-ocean-50"
+          >
+            <FileImage className="h-3.5 w-3.5" />
+            Flyer
           </a>
         </div>
       </div>

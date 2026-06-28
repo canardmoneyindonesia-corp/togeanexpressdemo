@@ -1,6 +1,6 @@
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
-import { getPartner } from "@/lib/partners";
+import { getAgentBySlug } from "@/lib/queries";
 import { baseUrl } from "@/lib/url";
 
 // Headless Chrome must run on the Node runtime, not Edge.
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // chromium cold start can be slow
 
-const FLYER_WIDTH = 1104;
+const FLYER_WIDTH = 1103;
 
 /**
  * Resolve a Chrome/Chromium binary. In production (Vercel) we use the bundled
@@ -61,13 +61,11 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const partner = getPartner(slug);
-  if (!partner) {
-    return new Response("Unknown partner", { status: 404 });
+  const agent = await getAgentBySlug(slug);
+  if (!agent) {
+    return new Response("Unknown agent", { status: 404 });
   }
 
-  const format =
-    new URL(req.url).searchParams.get("format") === "pdf" ? "pdf" : "png";
   const target = `${await baseUrl()}/flyer/${slug}`;
 
   let browser: Awaited<ReturnType<typeof resolveBrowser>> | null = null;
@@ -77,23 +75,14 @@ export async function GET(
     await page.goto(target, { waitUntil: "networkidle0", timeout: 45_000 });
     await page.waitForSelector(".flyer", { timeout: 15_000 });
 
-    let body: Uint8Array;
-    if (format === "pdf") {
-      body = await page.pdf({
-        width: `${FLYER_WIDTH}px`,
-        printBackground: true,
-        pageRanges: "1",
-      });
-    } else {
-      const el = await page.$(".flyer");
-      if (!el) throw new Error("Flyer element not found");
-      body = await el.screenshot({ type: "png" });
-    }
+    const el = await page.$(".flyer");
+    if (!el) throw new Error("Flyer element not found");
+    const body = await el.screenshot({ type: "png" });
 
-    const filename = `togean-express-${slug}.${format}`;
+    const filename = `togean-express-${slug}.png`;
     return new Response(Buffer.from(body), {
       headers: {
-        "Content-Type": format === "pdf" ? "application/pdf" : "image/png",
+        "Content-Type": "image/png",
         "Content-Disposition": `attachment; filename="${filename}"`,
         "Cache-Control": "no-store",
       },
